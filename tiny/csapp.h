@@ -146,9 +146,9 @@ void Connect(int sockfd, struct sockaddr *serv_addr, int addrlen);
 
 /* Protocol independent wrappers */
 void Getaddrinfo(const char *node, const char *service, 
-                 const struct addrinfo *hints, struct addrinfo **res);
+				const struct addrinfo *hints, struct addrinfo **res);
 void Getnameinfo(const struct sockaddr *sa, socklen_t salen, char *host, 
-                 size_t hostlen, char *serv, size_t servlen, int flags);
+				size_t hostlen, char *serv, size_t servlen, int flags);
 void Freeaddrinfo(struct addrinfo *res);
 void Inet_ntop(int af, const void *src, char *dst, socklen_t size);
 void Inet_pton(int af, const char *src, void *dst); 
@@ -159,7 +159,7 @@ struct hostent *Gethostbyaddr(const char *addr, int len, int type);
 
 /* Pthreads thread control wrappers */
 void Pthread_create(pthread_t *tidp, pthread_attr_t *attrp, 
-		    void * (*routine)(void *), void *argp);
+void * (*routine)(void *), void *argp);
 void Pthread_join(pthread_t tid, void **thread_return);
 void Pthread_cancel(pthread_t tid);
 void Pthread_detach(pthread_t tid);
@@ -176,8 +176,8 @@ void V(sem_t *sem);
 ssize_t rio_readn(int fd, void *usrbuf, size_t n);
 ssize_t rio_writen(int fd, void *usrbuf, size_t n);
 void rio_readinitb(rio_t *rp, int fd); 
-ssize_t	rio_readnb(rio_t *rp, void *usrbuf, size_t n);
-ssize_t	rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen);
+ssize_t rio_readnb(rio_t *rp, void *usrbuf, size_t n);
+ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen);
 
 /* Wrappers for Rio package */
 ssize_t Rio_readn(int fd, void *usrbuf, size_t n);
