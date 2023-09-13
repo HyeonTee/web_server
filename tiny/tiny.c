@@ -174,6 +174,26 @@ void get_filetype (char *filename, char *filetype)
 
 void serve_dynamic (int fd, char *filename, char *cgiargs)
 {
+	char buf[MAXLINE], *emptylist[] = { NULL };
+	
+	/* Return first part of HTTP response */
+	sprintf(buf, "HTTP/1.0 200 OK\r\n");
+	Rio_writen(fd, buf, strlen(buf));
+	sprintf(buf, "Server: Tiny Web Server\r\n");
+	Rio_writen(fd, buf, strlen(buf));
+	
+	/* Child process */
+	if (Fork() == 0) {
+		/* Real server would set all CGI vars here */
+		setenv("QUERY_STRING", cgiargs, 1);
+		/* Redirect stdout to client */
+		Dup2(fd, STDOUT_FILENO);
+		/* Run CGI program */
+		Execve(filename, emptylist, environ);
+	}
+	
+	/* Parent waits for and reaps child */
+	Wait(NULL);
 }
 
 void clienterror (int fd, char *cause, char *errnum, char *shortmsg, char *longmsg)
