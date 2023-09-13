@@ -137,7 +137,7 @@ void serve_static (int fd, char *filename, int filesize)
 	char *srcp, filetype[MAXLINE], buf[MAXBUF];
 
 	/* Send response headers to client */
-	get_filename(filename, filetype);
+	get_filetype(filename, filetype);
 	sprintf(buf, "HTTP/1.0 200 OK\r\n");
 	sprintf(buf, "%sServer: Tiny Web Server\r\n", buf);
 	sprintf(buf, "%sConnection: close\r\n", buf);
