@@ -5,6 +5,7 @@ pub fn route(request: &Request) -> Response {
     match request.path.as_str() {
         "/" => static_handler::serve("static/index.html"),
         "/about" => static_handler::serve("static/about.html"),
+        "/style.css" => static_handler::serve("static/style.css"),
         _ => not_found::serve(),
     }
 }

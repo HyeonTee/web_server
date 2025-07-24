@@ -18,7 +18,11 @@ fn main() {
         .and_then(|s| s.parse::<usize>().ok())
         .unwrap_or_else(num_cpus::get);
     
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let port = env::var("PORT")
+        .unwrap_or_else(|_| "7878".to_string());
+
+    let listener = TcpListener::bind(format!("127.0.0.1:{port}")).unwrap();
+    
     let pool = ThreadPool::new(num_threads);
 
     for stream in listener.incoming() {
