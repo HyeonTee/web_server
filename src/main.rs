@@ -1,6 +1,7 @@
 mod thread_pool;
 mod handler;
 mod http;
+mod utils;
 
 use dotenvy::dotenv;
 use std::env;
@@ -8,7 +9,7 @@ use num_cpus;
 use std::net::{TcpListener, TcpStream};
 use std::io::{Read, Write};
 use thread_pool::ThreadPool;
-use http::{request::Request, response::Response};
+use http::{request::Request, response::Response, status::StatusCode};
 use handler::route::route;
 
 fn main() {
@@ -19,7 +20,7 @@ fn main() {
         .unwrap_or_else(num_cpus::get);
     
     let port = env::var("PORT")
-        .unwrap_or_else(|_| "7878".to_string());
+        .unwrap_or_else(|_| "8080".to_string());
 
     let listener = TcpListener::bind(format!("127.0.0.1:{port}")).unwrap();
     
@@ -40,7 +41,7 @@ fn handle_connection(mut stream: TcpStream) {
     let request = match Request::from(&buffer) {
         Some(req) => req,
         None => {
-            let res = Response::new("HTTP/1.1 400 Bad Request", "Bad Request", "text/plain");
+            let res = Response::new(StatusCode::BadRequest, "Bad Request", "text/plain");
             stream.write_all(res.to_string().as_bytes()).unwrap();
             return;
         }
