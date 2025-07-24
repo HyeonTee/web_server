@@ -2,6 +2,9 @@ mod thread_pool;
 mod handler;
 mod http;
 
+use dotenvy::dotenv;
+use std::env;
+use num_cpus;
 use std::net::{TcpListener, TcpStream};
 use std::io::{Read, Write};
 use thread_pool::ThreadPool;
@@ -9,8 +12,14 @@ use http::{request::Request, response::Response};
 use handler::route::route;
 
 fn main() {
+    dotenv().ok();
+    let num_threads = env::var("THREAD_POOL_SIZE")
+        .ok()
+        .and_then(|s| s.parse::<usize>().ok())
+        .unwrap_or_else(num_cpus::get);
+    
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let pool = ThreadPool::new(4);
+    let pool = ThreadPool::new(num_threads);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
