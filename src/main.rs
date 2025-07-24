@@ -11,6 +11,7 @@ use std::io::{Read, Write};
 use thread_pool::ThreadPool;
 use http::{request::Request, response::Response, status::StatusCode};
 use handler::route::route;
+use utils::json_error_response;
 
 fn main() {
     dotenv().ok();
@@ -41,7 +42,7 @@ fn handle_connection(mut stream: TcpStream) {
     let request = match Request::from(&buffer) {
         Some(req) => req,
         None => {
-            let res = Response::new(StatusCode::BadRequest, "Bad Request", "text/plain");
+            let res = json_error_response(StatusCode::BadRequest, "Malformed HTTP request");
             stream.write_all(res.to_string().as_bytes()).unwrap();
             return;
         }

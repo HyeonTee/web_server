@@ -24,4 +24,9 @@ impl StatusCode {
         let (code, reason) = self.as_tuple();
         format!("HTTP/1.1 {} {}", code, reason)
     }
+
+    pub fn reason(&self) -> &'static str {
+        let (_, reason) = self.as_tuple();
+        reason
+    }
 }
