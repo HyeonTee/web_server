@@ -111,7 +111,7 @@ deploy/                   # IaC (planned)
 - [x] Run Ansible — Docker + nginx + Let's Encrypt prod cert + systemd-managed container
 - [x] DNS pointed at EC2 EIP, HTTPS verified (HTTP/2, HSTS, security headers)
 - [x] HEAD method support in router (RFC 9110 §9.3.2) so `curl -I` / uptime probes work
-- [ ] Decommission Vercel deployment
+- [x] Decommission Vercel deployment
 
 ### Possible follow-ups
 - GitHub Actions: build & push image on `main`, trigger Ansible deploy
