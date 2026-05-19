@@ -1,4 +1,10 @@
 ---
+# nginx role enqueued a `reload nginx` handler. Handlers normally run at the
+# end of the play, but certbot needs the new server block ACTIVE *now* to
+# answer the ACME http-01 challenge. Force pending handlers to run first.
+- name: Apply pending handlers (nginx reload) before issuing certs
+  ansible.builtin.meta: flush_handlers
+
 - name: Install certbot
   ansible.builtin.apt:
     name:

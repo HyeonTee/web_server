@@ -22,7 +22,6 @@
       - vim
       - ufw
       - unattended-upgrades
-      - python3-pip
     state: present
 
 - name: Enable unattended-upgrades

@@ -46,7 +46,10 @@ impl Router {
     pub fn handle(&self, req: &Request) -> Response {
         let dispatch = |req: &Request| -> Response {
             for route in &self.routes {
-                if route.method == req.method && route.pattern.matches(&req.path) {
+                // HEAD is satisfied by the matching GET handler (RFC 9110 §9.3.2).
+                let method_matches = route.method == req.method
+                    || (route.method == Method::Get && req.method == Method::Head);
+                if method_matches && route.pattern.matches(&req.path) {
                     return (route.handler)(req);
                 }
             }

@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1.7
 
 # ---------- Builder ----------
-FROM rust:1-bookworm AS builder
+# Pin amd64 so building on Apple Silicon still produces an EC2-compatible image.
+# (Switch to linux/arm64 if you move to a Graviton instance like t4g.*)
+FROM --platform=linux/amd64 rust:1-bookworm AS builder
 WORKDIR /app
 
 # Copy manifests + sources, then build a release binary.
@@ -11,7 +13,7 @@ COPY src ./src
 RUN cargo build --release --locked
 
 # ---------- Runtime ----------
-FROM debian:bookworm-slim AS runtime
+FROM --platform=linux/amd64 debian:bookworm-slim AS runtime
 WORKDIR /app
 
 # Run as a non-root user

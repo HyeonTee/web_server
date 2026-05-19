@@ -25,8 +25,9 @@ Push your image to ECR (from your laptop, with Docker logged in):
 ECR=$(cd ../terraform && terraform output -raw ecr_repository_url)
 aws ecr get-login-password --region ap-northeast-2 --profile personal \
   | docker login --username AWS --password-stdin "${ECR%/*}"
-docker tag web_server:latest "$ECR:latest"
-docker push "$ECR:latest"
+# Use ${ECR} (not $ECR) before a colon — zsh treats ":l" as a lowercase modifier
+docker tag  web_server:latest "${ECR}:latest"
+docker push "${ECR}:latest"
 ```
 
 ## Run

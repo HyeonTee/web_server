@@ -106,10 +106,11 @@ deploy/                   # IaC (planned)
   - [x] `certbot` — webroot-mode Let's Encrypt issuance, staging→prod switch, `certbot.timer` auto-renewal
   - [x] `app` — ECR pull, systemd unit, restart on image change
 
-### ⏳ Phase 5 — Cutover
-- [ ] Apply Terraform, run Ansible
-- [ ] DNS switch from Vercel to EC2 EIP
-- [ ] Verify HTTPS, security headers, response times
+### ✅ Phase 5 — Cutover (live)
+- [x] Apply Terraform — EC2/EIP/ECR/Route53 up
+- [x] Run Ansible — Docker + nginx + Let's Encrypt prod cert + systemd-managed container
+- [x] DNS pointed at EC2 EIP, HTTPS verified (HTTP/2, HSTS, security headers)
+- [x] HEAD method support in router (RFC 9110 §9.3.2) so `curl -I` / uptime probes work
 - [ ] Decommission Vercel deployment
 
 ### Possible follow-ups
