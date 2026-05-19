@@ -1,0 +1,8 @@
+# Per-environment inventory/vars — never commit
+inventory.ini
+group_vars/all.yml
+host_vars/
+
+# Ansible runtime
+*.retry
+.vault_pass

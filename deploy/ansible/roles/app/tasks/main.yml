@@ -1,0 +1,23 @@
+---
+- name: Pull app image from ECR
+  ansible.builtin.command:
+    cmd: "docker pull {{ app_image }}"
+  register: pull_result
+  changed_when: "'Status: Image is up to date' not in pull_result.stdout"
+  notify: restart web_server
+
+- name: Install systemd unit for the app container
+  ansible.builtin.template:
+    src: web_server.service.j2
+    dest: /etc/systemd/system/web_server.service
+    mode: "0644"
+  notify:
+    - reload systemd
+    - restart web_server
+
+- name: Enable and start web_server
+  ansible.builtin.systemd:
+    name: web_server
+    enabled: true
+    state: started
+    daemon_reload: true

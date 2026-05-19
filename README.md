@@ -95,16 +95,16 @@ deploy/                   # IaC (planned)
 - [x] `.dockerignore`
 - [x] Local verification — image ~98 MB, container responds 76–123µs
 
-### 🚧 Phase 4 — IaC (in progress)
+### ✅ Phase 4 — IaC (done)
 - [x] **Terraform**: default VPC, t3.micro Ubuntu 24.04, SG (22/80/443), EIP, SSH key, ECR + lifecycle, IAM instance profile (ECR read-only), Route53 zone + apex/www A records
 - [x] Named AWS profile support + `expected_account_id` fail-safe check
-- [ ] State backend (start local, migrate to S3 + DynamoDB lock)
-- [ ] **Ansible** playbooks:
-  - [ ] Base hardening (unattended-upgrades, ufw)
-  - [ ] Docker install
-  - [ ] nginx install + reverse proxy config (`proxy_pass http://127.0.0.1:8080`)
-  - [ ] certbot install + Let's Encrypt issuance + auto-renewal
-  - [ ] App deploy role: ECR login, pull image, systemd-managed container
+- [ ] State backend (start local, migrate to S3 + DynamoDB lock — deferred)
+- [x] **Ansible** playbooks:
+  - [x] `common` — timezone, apt upgrade, unattended-upgrades, ufw (22/80/443)
+  - [x] `docker` — Docker Engine + amazon-ecr-credential-helper (auto ECR auth)
+  - [x] `nginx` — reverse proxy to `127.0.0.1:8080`, ACME challenge path, HSTS/security headers, gzip
+  - [x] `certbot` — webroot-mode Let's Encrypt issuance, staging→prod switch, `certbot.timer` auto-renewal
+  - [x] `app` — ECR pull, systemd unit, restart on image change
 
 ### ⏳ Phase 5 — Cutover
 - [ ] Apply Terraform, run Ansible

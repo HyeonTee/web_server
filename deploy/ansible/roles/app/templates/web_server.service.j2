@@ -1,0 +1,21 @@
+[Unit]
+Description=web_server container
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Restart=always
+RestartSec=5
+TimeoutStartSec=120
+
+ExecStartPre=-/usr/bin/docker stop {{ app_container_name }}
+ExecStartPre=-/usr/bin/docker rm {{ app_container_name }}
+ExecStart=/usr/bin/docker run --rm \
+    --name {{ app_container_name }} \
+    -p 127.0.0.1:{{ app_host_port }}:{{ app_container_port }} \
+    {{ app_image }}
+ExecStop=/usr/bin/docker stop {{ app_container_name }}
+
+[Install]
+WantedBy=multi-user.target

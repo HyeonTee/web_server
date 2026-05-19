@@ -1,0 +1,47 @@
+---
+- name: Install certbot
+  ansible.builtin.apt:
+    name:
+      - certbot
+      - python3-certbot-nginx
+    state: present
+
+- name: Check if cert already issued
+  ansible.builtin.stat:
+    path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+  register: cert_stat
+
+- name: Build certbot domain args
+  ansible.builtin.set_fact:
+    certbot_domain_args: >-
+      -d {{ domain_name }}{{ ' -d www.' ~ domain_name if include_www else '' }}
+
+- name: Issue Let's Encrypt cert (webroot)
+  ansible.builtin.command: >-
+    certbot certonly --webroot
+    -w /var/www/letsencrypt
+    {{ certbot_domain_args }}
+    --email {{ letsencrypt_email }}
+    --agree-tos --non-interactive
+    {{ '--staging' if letsencrypt_staging else '' }}
+  when: not cert_stat.stat.exists
+  register: certbot_run
+  changed_when: "'Successfully received certificate' in certbot_run.stdout"
+
+- name: Re-render nginx site config (now with HTTPS block)
+  ansible.builtin.template:
+    src: ../../nginx/templates/site.conf.j2
+    dest: "/etc/nginx/sites-available/{{ domain_name }}.conf"
+    mode: "0644"
+  vars:
+    cert_exists: true
+  when: certbot_run.changed | default(false)
+  notify: reload nginx
+
+# certbot ships a systemd timer (`certbot.timer`) that runs `certbot renew`
+# twice daily on Ubuntu. We just make sure it's enabled.
+- name: Ensure certbot renewal timer is enabled
+  ansible.builtin.systemd:
+    name: certbot.timer
+    enabled: true
+    state: started
