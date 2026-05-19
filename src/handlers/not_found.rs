@@ -1,4 +1,4 @@
-use crate::http::{response::Response, status::StatusCode};
+use crate::http::{Response, StatusCode};
 use std::fs;
 
 pub fn serve() -> Response {

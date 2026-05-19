@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 use serde::de::DeserializeOwned;
 use urlencoding::decode;
+use super::method::Method;
 
 pub struct Request {
-    pub method: String,
+    pub method: Method,
     pub path: String,
     pub version: String,
     pub headers: HashMap<String, String>,
@@ -15,25 +16,21 @@ impl Request {
     pub fn from(buf: &[u8]) -> Option<Self> {
         let request_text = std::str::from_utf8(buf).ok()?;
 
-        // 분리: 헤더와 바디
-        let (head, body) = request_text.split_once("\r\n\r\n")?;
+        let (head, _) = request_text.split_once("\r\n\r\n")?;
         let mut lines = head.lines();
 
-        // 요청라인 파싱
         let request_line = lines.next()?;
         let mut parts = request_line.split_whitespace();
-        let method = parts.next()?.to_string();
+        let method = Method::parse(parts.next()?);
         let full_path = parts.next()?.to_string();
         let version = parts.next()?.to_string();
 
-        // path, query_string 분리
         let (path, query_string) = if let Some((p, q)) = full_path.split_once('?') {
             (p.to_string(), q.to_string())
         } else {
             (full_path, String::new())
         };
 
-        // 헤더 파싱
         let mut headers = HashMap::new();
         for line in lines {
             if let Some((key, value)) = line.split_once(": ") {
@@ -41,7 +38,6 @@ impl Request {
             }
         }
 
-        // 바디는 헤더 다음부터 남은 부분
         let body_start = buf.windows(4).position(|w| w == b"\r\n\r\n")? + 4;
         let body = buf[body_start..].to_vec();
 
