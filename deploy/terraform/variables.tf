@@ -50,6 +50,18 @@ variable "create_hosted_zone" {
   default     = true
 }
 
+variable "github_owner" {
+  description = "GitHub user/org that owns the repo (used in OIDC trust policy)"
+  type        = string
+  default     = "HyeonTee"
+}
+
+variable "github_repo" {
+  description = "GitHub repository name (used in OIDC trust policy)"
+  type        = string
+  default     = "web_server"
+}
+
 variable "tags" {
   description = "Default tags applied to all resources"
   type        = map(string)

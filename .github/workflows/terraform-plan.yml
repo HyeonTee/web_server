@@ -1,0 +1,91 @@
+name: terraform-plan
+
+on:
+  pull_request:
+    paths:
+      - "deploy/terraform/**"
+      - ".github/workflows/terraform-plan.yml"
+
+concurrency:
+  group: tf-plan-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write       # OIDC
+  contents: read
+  pull-requests: write  # comment plan output on the PR
+
+jobs:
+  plan:
+    name: terraform plan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: deploy/terraform
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC, read-only)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
+          aws-region:     ${{ vars.AWS_REGION }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.0
+
+      - name: terraform init
+        run: terraform init -input=false
+
+      - name: terraform plan
+        id: plan
+        # `-detailed-exitcode`: 0=no changes, 2=changes, 1=error.
+        # Don't fail the job on exit 2 (we want the PR to see the diff).
+        run: |
+          set +e
+          terraform plan -no-color -input=false -detailed-exitcode \
+            -out=tfplan.bin > plan.txt 2>&1
+          ec=$?
+          set -e
+          {
+            echo "exit_code=$ec"
+            echo "plan_path=deploy/terraform/plan.txt"
+          } >> "$GITHUB_OUTPUT"
+          # Surface a short preview in the job log
+          tail -n 50 plan.txt
+          [ $ec -ne 1 ]  # only hard-fail on actual errors
+
+      - name: Comment plan on PR
+        uses: actions/github-script@v7
+        env:
+          PLAN_FILE: deploy/terraform/plan.txt
+          PLAN_EXIT: ${{ steps.plan.outputs.exit_code }}
+        with:
+          script: |
+            const fs = require('fs');
+            const raw = fs.readFileSync(process.env.PLAN_FILE, 'utf8');
+            const trimmed = raw.length > 60000
+              ? raw.slice(0, 60000) + '\n\n...[truncated]'
+              : raw;
+            const verdict = process.env.PLAN_EXIT === '2'
+              ? '🟡 **Changes detected**'
+              : '🟢 **No changes**';
+            const body = [
+              `### Terraform plan — ${verdict}`,
+              '',
+              '<details><summary>Show plan output</summary>',
+              '',
+              '```hcl',
+              trimmed,
+              '```',
+              '',
+              '</details>',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

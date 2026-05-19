@@ -113,11 +113,19 @@ deploy/                   # IaC (planned)
 - [x] HEAD method support in router (RFC 9110 §9.3.2) so `curl -I` / uptime probes work
 - [x] Decommission Vercel deployment
 
+### ✅ Phase 6 — CI/CD (GitHub Actions)
+- [x] `ci.yml` — cargo fmt/clippy/test + terraform fmt/validate on PR & main
+- [x] `deploy.yml` — main push → build amd64 image → push to ECR → SSM Send-Command (`docker pull` + `systemctl restart`) → smoke test
+- [x] `terraform-plan.yml` — PRs touching `deploy/terraform/**` get `terraform plan` output as a PR comment
+- [x] **OIDC** auth (no long-lived access keys in GitHub secrets)
+- [x] Two least-privilege IAM roles: `gha-deploy` (ECR push + scoped SSM) and `gha-plan` (read-only)
+
 ### Possible follow-ups
-- GitHub Actions: build & push image on `main`, trigger Ansible deploy
 - Small JSON API endpoints (e.g. visit counter)
 - Structured logging + access log shipping
 - Health-check endpoint + nginx upstream healthcheck
+- S3 + DynamoDB backend for Terraform state (currently local)
+- cargo-chef in Dockerfile to cache dependencies between builds
 
 ## Running locally
 
