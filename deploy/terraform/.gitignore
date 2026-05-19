@@ -1,0 +1,16 @@
+# Local state — never commit
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# .terraform directory (provider plugins, modules)
+.terraform/
+.terraform.lock.hcl
+
+# Secrets / per-env values
+*.tfvars
+!*.tfvars.example
+
+# Crash logs
+crash.log
+crash.*.log

@@ -1,0 +1,25 @@
+# Build artifacts
+target/
+**/*.rs.bk
+
+# VCS / editor
+.git/
+.gitignore
+.github/
+.idea/
+.vscode/
+
+# Local config / secrets
+.env
+.env.*
+
+# Docs / project meta (not needed at runtime)
+README.md
+*.md
+
+# Future IaC (built separately)
+deploy/
+
+# OS noise
+.DS_Store
+Thumbs.db

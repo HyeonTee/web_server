@@ -1,11 +1,42 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>404 Not Found</title>
-        <link rel="stylesheet" href="./style.css" />
-    </head>
-    <body>
-        <h1>404 - Page Not Found</h1>
-        <p>The page you are looking for does not exist.</p>
-    </body>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 Not Found — 김현태</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script>
+    (function () {
+      var stored = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', stored || (prefersDark ? 'dark' : 'light'));
+    })();
+  </script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a class="brand" href="/">현태.dev</a>
+      <div class="nav-links">
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="https://github.com/HyeonTee" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <button id="theme-toggle" aria-label="Toggle theme">☾</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container notfound">
+      <h2>404</h2>
+      <p>요청하신 페이지를 찾을 수 없습니다.</p>
+      <a class="btn" href="/">홈으로 돌아가기</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 김현태 · served by Rust web_server</div>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
 </html>

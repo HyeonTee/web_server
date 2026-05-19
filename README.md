@@ -82,27 +82,29 @@ deploy/                   # IaC (planned)
 - [x] `Config::from_env` (`BIND_ADDR`, `PORT`, `THREAD_POOL_SIZE`)
 - [x] Stability: 16 KB read buffer, no panics on bad client connections, `Connection: close`
 
-### 🚧 Phase 2 — Static site content (next)
-- [ ] `static/index.html` — landing page
-- [ ] `static/about.html` — about / resume page
-- [ ] `static/css/style.css` — styling
-- [ ] `static/js/app.js` — dark mode toggle (localStorage + `prefers-color-scheme`), small interactions
+### ✅ Phase 2 — Static site content (done)
+- [x] `static/index.html` — landing page with typing greeting
+- [x] `static/about.html` — about / resume page (Introduction, Skills, Bio, Contact)
+- [x] `static/404.html` — branded not-found page
+- [x] `static/css/style.css` — CSS-variable theme (light/dark), cards, timeline, mobile responsive
+- [x] `static/js/app.js` — flash-free theme toggle, nav active state, typing animation, auto current-date
 - [ ] Assets: favicon, og:image, resume.pdf
 
-### ⏳ Phase 3 — Dockerization
-- [ ] Multi-stage `Dockerfile` (builder → slim runtime)
-- [ ] `.dockerignore`
-- [ ] Local verification (`docker build` + `docker run -p 127.0.0.1:8080:8080`)
+### ✅ Phase 3 — Dockerization (done)
+- [x] Multi-stage `Dockerfile` (rust:1-bookworm → debian:bookworm-slim, non-root user)
+- [x] `.dockerignore`
+- [x] Local verification — image ~98 MB, container responds 76–123µs
 
-### ⏳ Phase 4 — IaC
-- [ ] **Terraform**: VPC default, EC2 (Ubuntu LTS), Security Group (22 / 80 / 443), Elastic IP, Route53 A record, SSH key
+### 🚧 Phase 4 — IaC (in progress)
+- [x] **Terraform**: default VPC, t3.micro Ubuntu 24.04, SG (22/80/443), EIP, SSH key, ECR + lifecycle, IAM instance profile (ECR read-only), Route53 zone + apex/www A records
+- [x] Named AWS profile support + `expected_account_id` fail-safe check
 - [ ] State backend (start local, migrate to S3 + DynamoDB lock)
 - [ ] **Ansible** playbooks:
   - [ ] Base hardening (unattended-upgrades, ufw)
   - [ ] Docker install
   - [ ] nginx install + reverse proxy config (`proxy_pass http://127.0.0.1:8080`)
   - [ ] certbot install + Let's Encrypt issuance + auto-renewal
-  - [ ] App deploy role: pull image, run/restart container
+  - [ ] App deploy role: ECR login, pull image, systemd-managed container
 
 ### ⏳ Phase 5 — Cutover
 - [ ] Apply Terraform, run Ansible
