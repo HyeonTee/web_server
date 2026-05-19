@@ -1,5 +1,5 @@
-use serde::Serialize;
 use crate::http::status::StatusCode;
+use serde::Serialize;
 
 pub struct Response {
     status_line: String,

@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-use serde::de::DeserializeOwned;
-use urlencoding::decode;
 use super::method::Method;
+use serde::de::DeserializeOwned;
+use std::collections::HashMap;
+use urlencoding::decode;
 
 pub struct Request {
     pub method: Method,

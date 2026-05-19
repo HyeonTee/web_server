@@ -1,8 +1,8 @@
+use crate::handlers::not_found;
+use crate::http::mime::get_content_type;
+use crate::http::{Request, Response, StatusCode};
 use std::fs;
 use std::path::{Path, PathBuf};
-use crate::http::{Request, Response, StatusCode};
-use crate::http::mime::get_content_type;
-use crate::handlers::not_found;
 
 const STATIC_ROOT: &str = "static";
 

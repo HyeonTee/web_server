@@ -17,7 +17,10 @@ impl<'a> Next<'a> {
         chain: &'a [Box<dyn Middleware>],
         final_handler: &'a dyn Fn(&Request) -> Response,
     ) -> Self {
-        Self { chain, final_handler }
+        Self {
+            chain,
+            final_handler,
+        }
     }
 
     pub fn run(self, req: &Request) -> Response {

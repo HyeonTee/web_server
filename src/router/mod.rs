@@ -1,8 +1,8 @@
 pub mod route;
 pub use route::{Handler, Pattern, Route};
 
-use crate::http::{Method, Request, Response};
 use crate::handlers::not_found;
+use crate::http::{Method, Request, Response};
 use crate::middleware::{Middleware, Next};
 
 pub struct Router {
@@ -39,7 +39,11 @@ impl Router {
         } else {
             Pattern::Exact(path.to_string())
         };
-        self.routes.push(Route { method, pattern, handler });
+        self.routes.push(Route {
+            method,
+            pattern,
+            handler,
+        });
         self
     }
 

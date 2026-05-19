@@ -1,6 +1,6 @@
-use std::time::Instant;
-use crate::http::{Request, Response};
 use super::{Middleware, Next};
+use crate::http::{Request, Response};
+use std::time::Instant;
 
 pub struct Logger;
 

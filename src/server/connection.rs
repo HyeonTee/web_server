@@ -1,9 +1,9 @@
-use std::net::TcpStream;
 use std::io::{Read, Write};
+use std::net::TcpStream;
 
+use crate::error::json_error_response;
 use crate::http::{Request, StatusCode};
 use crate::router::Router;
-use crate::error::json_error_response;
 
 const READ_BUFFER_SIZE: usize = 16 * 1024;
 

@@ -1,12 +1,12 @@
 use dotenvy::dotenv;
-use std::sync::Arc;
 use std::net::TcpListener;
+use std::sync::Arc;
 
 use web_server::config::Config;
-use web_server::server::{connection, thread_pool::ThreadPool};
-use web_server::router::Router;
 use web_server::handlers::static_files;
 use web_server::middleware::Logger;
+use web_server::router::Router;
+use web_server::server::{connection, thread_pool::ThreadPool};
 
 fn main() {
     dotenv().ok();
