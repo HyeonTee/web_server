@@ -1,6 +1,8 @@
 # web_server
 
-A multithreaded HTTP server written in Rust from scratch, used to serve a personal portfolio site behind nginx on EC2.
+A multithreaded HTTP server written in Rust, used to serve a personal portfolio site behind nginx on EC2.
+
+The server started from the final-project chapter of [_The Rust Programming Language_](https://doc.rust-lang.org/book/) ("The Book") — a single-threaded handler hardened with a thread pool — and was extended into something I'd actually want to deploy: a request router with a middleware chain, binary-safe responses, MIME-aware static file serving with path-traversal protection, env-driven config, and a real container/IaC/CI pipeline.
 
 This is primarily a learning project — building the server, deploying it with IaC, and operating it on real infrastructure end-to-end. No frameworks (axum, actix, hyper, tokio); the standard library only.
 
@@ -53,8 +55,8 @@ src/
     └── api/             # placeholder for future API handlers
 
 static/                   # site content (baked into Docker image)
-deploy/                   # IaC (planned)
-├── terraform/            # EC2, SG, EIP, Route53
+deploy/
+├── terraform/            # EC2, SG, EIP, ECR, Route53, GitHub OIDC roles
 └── ansible/              # nginx, Docker, certbot, container deploy
 ```
 
@@ -69,63 +71,6 @@ deploy/                   # IaC (planned)
 | Infrastructure | Terraform (EC2, Security Group, EIP, Route53) |
 | Server provisioning | Ansible (Docker install, nginx config, certbot, deploy) |
 | Host | AWS EC2 |
-
-## Progress
-
-### ✅ Phase 1 — Server core (done)
-- [x] Modular project layout (`http/`, `router/`, `middleware/`, `handlers/`, `server/`)
-- [x] `Request` parsing with `Method` enum
-- [x] `Response` with `Vec<u8>` body (binary-safe), auto `Connection: close`
-- [x] `Router` with builder pattern + Exact/Prefix patterns + method matching
-- [x] `Middleware` trait with `Next` chain (around pattern), `Logger` middleware
-- [x] Static file handler with `canonicalize()`-based path-traversal guard
-- [x] `Config::from_env` (`BIND_ADDR`, `PORT`, `THREAD_POOL_SIZE`)
-- [x] Stability: 16 KB read buffer, no panics on bad client connections, `Connection: close`
-
-### ✅ Phase 2 — Static site content (done)
-- [x] `static/index.html` — landing page with typing greeting
-- [x] `static/about.html` — about / resume page (Introduction, Skills, Bio, Contact)
-- [x] `static/404.html` — branded not-found page
-- [x] `static/css/style.css` — CSS-variable theme (light/dark), cards, timeline, mobile responsive
-- [x] `static/js/app.js` — flash-free theme toggle, nav active state, typing animation, auto current-date
-- [ ] Assets: favicon, og:image, resume.pdf
-
-### ✅ Phase 3 — Dockerization (done)
-- [x] Multi-stage `Dockerfile` (rust:1-bookworm → debian:bookworm-slim, non-root user)
-- [x] `.dockerignore`
-- [x] Local verification — image ~98 MB, container responds 76–123µs
-
-### ✅ Phase 4 — IaC (done)
-- [x] **Terraform**: default VPC, t3.micro Ubuntu 24.04, SG (22/80/443), EIP, SSH key, ECR + lifecycle, IAM instance profile (ECR read-only), Route53 zone + apex/www A records
-- [x] Named AWS profile support + `expected_account_id` fail-safe check
-- [ ] State backend (start local, migrate to S3 + DynamoDB lock — deferred)
-- [x] **Ansible** playbooks:
-  - [x] `common` — timezone, apt upgrade, unattended-upgrades, ufw (22/80/443)
-  - [x] `docker` — Docker Engine + amazon-ecr-credential-helper (auto ECR auth)
-  - [x] `nginx` — reverse proxy to `127.0.0.1:8080`, ACME challenge path, HSTS/security headers, gzip
-  - [x] `certbot` — webroot-mode Let's Encrypt issuance, staging→prod switch, `certbot.timer` auto-renewal
-  - [x] `app` — ECR pull, systemd unit, restart on image change
-
-### ✅ Phase 5 — Cutover (live)
-- [x] Apply Terraform — EC2/EIP/ECR/Route53 up
-- [x] Run Ansible — Docker + nginx + Let's Encrypt prod cert + systemd-managed container
-- [x] DNS pointed at EC2 EIP, HTTPS verified (HTTP/2, HSTS, security headers)
-- [x] HEAD method support in router (RFC 9110 §9.3.2) so `curl -I` / uptime probes work
-- [x] Decommission Vercel deployment
-
-### ✅ Phase 6 — CI/CD (GitHub Actions)
-- [x] `ci.yml` — cargo fmt/clippy/test + terraform fmt/validate on PR & main
-- [x] `deploy.yml` — main push → build amd64 image → push to ECR → SSM Send-Command (`docker pull` + `systemctl restart`) → smoke test
-- [x] `terraform-plan.yml` — PRs touching `deploy/terraform/**` get `terraform plan` output as a PR comment
-- [x] **OIDC** auth (no long-lived access keys in GitHub secrets)
-- [x] Two least-privilege IAM roles: `gha-deploy` (ECR push + scoped SSM) and `gha-plan` (read-only)
-
-### Possible follow-ups
-- Small JSON API endpoints (e.g. visit counter)
-- Structured logging + access log shipping
-- Health-check endpoint + nginx upstream healthcheck
-- S3 + DynamoDB backend for Terraform state (currently local)
-- cargo-chef in Dockerfile to cache dependencies between builds
 
 ## Running locally
 
@@ -151,9 +96,8 @@ curl -i http://127.0.0.1:8080/static/style.css
 curl -i http://127.0.0.1:8080/nonexistent   # → 404
 ```
 
-## Non-goals
+## Deployment
 
-- Becoming a general-purpose web framework
-- Async / tokio support (synchronous thread pool is intentional)
-- HTTP/2 or HTTP/3
-- Keep-alive connections (single request per connection, `Connection: close`)
+- Infrastructure: [`deploy/terraform`](deploy/terraform) (EC2, ECR, Route53, GitHub OIDC roles)
+- Provisioning: [`deploy/ansible`](deploy/ansible) (nginx, Docker, Let's Encrypt, systemd-managed container)
+- CI/CD: GitHub Actions in [`.github/workflows`](.github/workflows) — see [`.github/SETUP.md`](.github/SETUP.md) for one-time setup
