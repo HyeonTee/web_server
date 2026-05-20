@@ -46,7 +46,7 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.9.0
+          terraform_version: 1.10.0
 
       - name: terraform init
         run: terraform init -input=false
@@ -57,7 +57,9 @@ jobs:
         # Don't fail the job on exit 2 (we want the PR to see the diff).
         run: |
           set +e
-          terraform plan -no-color -input=false -detailed-exitcode \
+          # `-lock=false`: plan is read-only, so we skip acquiring the S3 lock
+          # and avoid granting write permissions to the gha-plan role.
+          terraform plan -no-color -input=false -detailed-exitcode -lock=false \
             -out=tfplan.bin > plan.txt 2>&1
           ec=$?
           set -e

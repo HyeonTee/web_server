@@ -135,28 +135,9 @@ resource "aws_iam_role" "github_plan" {
 }
 
 # Read-only is enough for `terraform plan` of the resources themselves.
+# Plan in CI passes `-lock=false`, so no S3/DynamoDB write permissions are
+# needed on this role.
 resource "aws_iam_role_policy_attachment" "github_plan_readonly" {
   role       = aws_iam_role.github_plan.name
   policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
-}
-
-# ReadOnlyAccess covers state reads (S3 GetObject/ListBucket) and lock reads
-# (DynamoDB GetItem), but `terraform plan` also acquires a write lock — so the
-# plan role needs PutItem/DeleteItem on the lock table only.
-data "aws_iam_policy_document" "github_plan_lock" {
-  statement {
-    sid    = "DynamoDbStateLock"
-    effect = "Allow"
-    actions = [
-      "dynamodb:PutItem",
-      "dynamodb:DeleteItem",
-    ]
-    resources = [aws_dynamodb_table.tfstate_lock.arn]
-  }
-}
-
-resource "aws_iam_role_policy" "github_plan_lock" {
-  name   = "${var.project_name}-gha-plan-lock"
-  role   = aws_iam_role.github_plan.id
-  policy = data.aws_iam_policy_document.github_plan_lock.json
 }
