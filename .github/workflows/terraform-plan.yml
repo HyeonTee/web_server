@@ -23,6 +23,17 @@ jobs:
       run:
         working-directory: deploy/terraform
 
+    # Terraform inputs with no default. These are public values (a domain name
+    # and an SSH public key), not secrets — store them as Actions Variables:
+    #   gh variable set DOMAIN_NAME --body "<your domain>"
+    #   gh variable set SSH_PUBKEY  --body "$(cat ~/.ssh/<your_key>.pub)"
+    # Other tfvars (allowed_ssh_cidr, expected_account_id, create_hosted_zone)
+    # fall back to their `variable {}` defaults; if they differ from your local
+    # tfvars, the plan output will show that drift.
+    env:
+      TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}
+      TF_VAR_ssh_pubkey:  ${{ vars.SSH_PUBKEY }}
+
     steps:
       - uses: actions/checkout@v4
 
