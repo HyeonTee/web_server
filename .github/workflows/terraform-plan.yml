@@ -47,6 +47,9 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.10.0
+          # The wrapper swallows `-detailed-exitcode`'s 2 (changes) so the
+          # job appears as "No changes" even when plan has a diff.
+          terraform_wrapper: false
 
       - name: terraform init
         run: terraform init -input=false
