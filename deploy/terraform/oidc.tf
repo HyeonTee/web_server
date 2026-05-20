@@ -134,9 +134,29 @@ resource "aws_iam_role" "github_plan" {
   assume_role_policy = data.aws_iam_policy_document.github_plan_trust.json
 }
 
-# Read-only is enough for `terraform plan`. If you tighten state access later
-# (S3 backend), add explicit S3/DynamoDB read+lock permissions here.
+# Read-only is enough for `terraform plan` of the resources themselves.
 resource "aws_iam_role_policy_attachment" "github_plan_readonly" {
   role       = aws_iam_role.github_plan.name
   policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+}
+
+# ReadOnlyAccess covers state reads (S3 GetObject/ListBucket) and lock reads
+# (DynamoDB GetItem), but `terraform plan` also acquires a write lock — so the
+# plan role needs PutItem/DeleteItem on the lock table only.
+data "aws_iam_policy_document" "github_plan_lock" {
+  statement {
+    sid    = "DynamoDbStateLock"
+    effect = "Allow"
+    actions = [
+      "dynamodb:PutItem",
+      "dynamodb:DeleteItem",
+    ]
+    resources = [aws_dynamodb_table.tfstate_lock.arn]
+  }
+}
+
+resource "aws_iam_role_policy" "github_plan_lock" {
+  name   = "${var.project_name}-gha-plan-lock"
+  role   = aws_iam_role.github_plan.id
+  policy = data.aws_iam_policy_document.github_plan_lock.json
 }
