@@ -1,16 +1,9 @@
 name: deploy
 
+# Retired 2026-09: the EC2 target no longer exists. The site is published as
+# static files by deploy/static/deploy.sh (see README). Kept for reference and
+# runnable only by hand.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "src/**"
-      - "static/**"
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "Dockerfile"
-      - ".dockerignore"
-      - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
 concurrency:
