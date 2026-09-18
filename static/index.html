@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>김현태 — Backend Engineer</title>
-  <meta name="description" content="백엔드 엔지니어 김현태의 포트폴리오" />
+  <title>김현태 — Backend Developer</title>
+  <meta name="description" content="백엔드 개발자 김현태. 레거시 모놀리식의 MSA 전환, 인증 플랫폼, GitOps 배포 파이프라인을 만듭니다." />
+  <link rel="canonical" href="https://hyeontae.gwinam.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="김현태 — Backend Developer" />
+  <meta property="og:description" content="백엔드 개발자 김현태의 홈페이지" />
+  <meta property="og:url" content="https://hyeontae.gwinam.com/" />
   <link rel="stylesheet" href="/static/css/style.css" />
   <script>
     (function () {
@@ -35,32 +40,36 @@
       <section class="section">
         <h2 class="section-title">About</h2>
         <p>
-          부산대학교 기계공학부를 졸업한 후 프로그래밍에 흥미가 생겨
-          컴퓨터 공학과 백엔드 엔지니어링을 공부하며 개발자로 일하고 있습니다.
+          부산대학교 기계공학부를 졸업하고 백엔드 개발자로 일하고 있습니다.
+          지금은 법무법인의 레거시 모놀리식 백엔드를 Kubernetes 위 Java/Spring MSA로 전환하는 일을 하고 있습니다.
+        </p>
+        <p>
+          신원·인증 플랫폼과 GitOps 배포 파이프라인을 직접 구축했고,
+          바꾸려는 대상의 실제 사용 데이터를 먼저 측정해서 설계 근거로 삼는 방식을 좋아합니다.
+          TypeScript/Node.js·PostgreSQL과 Java/Spring이 주력이고, Go와 Rust로 운영 도구를 만듭니다.
         </p>
       </section>
 
       <section class="section">
         <h2 class="section-title">이 사이트</h2>
         <p>
-          이 페이지는 Rust 표준 라이브러리만으로 작성한 HTTP 서버에서 직접 제공합니다.
+          정적 파일을 S3에 두고 CloudFront로 서빙합니다.
+          AWS Organization부터 인증서·DNS까지 전부 OpenTofu로 관리하고, 소스는 GitHub에 있습니다.
         </p>
         <p>
-          《The Rust Programming Language》 마지막 장 예제에서 출발해 라우터·미들웨어 체인·정적 파일 핸들러를 덧붙이고,
-          Docker · Terraform · Ansible · nginx 로 EC2 위에 배포했습니다.
+          처음에는 《The Rust Programming Language》 마지막 장 예제에서 출발한 Rust 표준 라이브러리 HTTP 서버로 EC2에서 직접 서빙했습니다.
+          그 서버는 지금도 로컬 개발용으로 이 페이지를 띄웁니다.
         </p>
         <p>
-          CI/CD 는 GitHub Actions · OIDC · ECR · SSM 으로 구성했습니다.
-        </p>
-        <p>
-          소스는 <a href="https://github.com/HyeonTee/web_server" target="_blank" rel="noopener">GitHub</a>에서 확인할 수 있습니다.
+          <a href="https://github.com/HyeonTee/web_server" target="_blank" rel="noopener">사이트 소스</a> ·
+          <a href="https://github.com/HyeonTee/aws" target="_blank" rel="noopener">인프라 코드</a>
         </p>
       </section>
     </div>
   </main>
 
   <footer class="footer">
-    <div class="container">© 김현태 · served by Rust web_server</div>
+    <div class="container">© 김현태 · hyeontae.gwinam.com</div>
   </footer>
 
   <script src="/static/js/app.js"></script>

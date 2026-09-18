@@ -98,6 +98,14 @@ curl -i http://127.0.0.1:8080/nonexistent   # → 404
 
 ## Deployment
 
-- Infrastructure: [`deploy/terraform`](deploy/terraform) (EC2, ECR, Route53, GitHub OIDC roles)
-- Provisioning: [`deploy/ansible`](deploy/ansible) (nginx, Docker, Let's Encrypt, systemd-managed container)
-- CI/CD: GitHub Actions in [`.github/workflows`](.github/workflows) — see [`.github/SETUP.md`](.github/SETUP.md) for one-time setup
+**Current (2026-09):** the site is served as static files from S3 + CloudFront at
+<https://hyeontae.gwinam.com/>. The Rust server is used for local development only.
+
+- Infrastructure: stack `prod/homepage` in [HyeonTee/aws](https://github.com/HyeonTee/aws) (OpenTofu; S3, CloudFront, ACM, Route53)
+- Publish: [`deploy/static/deploy.sh`](deploy/static/deploy.sh) — syncs `static/` to the bucket and invalidates the CDN
+
+**Previous (retired):** the container ran on EC2 behind nginx. That setup is kept for reference:
+
+- [`deploy/terraform`](deploy/terraform) (EC2, ECR, Route53, GitHub OIDC roles)
+- [`deploy/ansible`](deploy/ansible) (nginx, Docker, Let's Encrypt, systemd-managed container)
+- GitHub Actions in [`.github/workflows`](.github/workflows) — see [`.github/SETUP.md`](.github/SETUP.md)
