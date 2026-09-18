@@ -1,0 +1,58 @@
+name: publish
+
+# Publish static/ to https://hyeontae.gwinam.com/ (S3 + CloudFront, prod account).
+# Auth is GitHub OIDC: no stored AWS keys. The role's trust policy only accepts
+# this repo's main branch; its permissions cover the site bucket and its
+# distribution and nothing else. Infra: HyeonTee/aws, stack prod/homepage.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "static/**"
+      - "deploy/static/**"
+      - ".github/workflows/publish.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+permissions:
+  id-token: write   # request the OIDC token
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://hyeontae.gwinam.com/
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::071026217169:role/hyeontae-gwinam-com-gha-deploy
+          aws-region: ap-northeast-2
+
+      - name: Sync to S3 and invalidate CloudFront
+        env:
+          DISTRIBUTION_ID: E1HW7Q7ZGSQ0BW
+        run: deploy/static/deploy.sh
+
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          # Invalidation is async; give the edge a moment, then retry briefly.
+          for path in / /about /static/css/style.css; do
+            for i in 1 2 3 4 5 6; do
+              code=$(curl -s -o /dev/null -w '%{http_code}' "https://hyeontae.gwinam.com$path")
+              [ "$code" = "200" ] && break
+              sleep 10
+            done
+            echo "$path -> $code"
+            [ "$code" = "200" ]
+          done

@@ -102,7 +102,7 @@ curl -i http://127.0.0.1:8080/nonexistent   # → 404
 <https://hyeontae.gwinam.com/>. The Rust server is used for local development only.
 
 - Infrastructure: stack `prod/homepage` in [HyeonTee/aws](https://github.com/HyeonTee/aws) (OpenTofu; S3, CloudFront, ACM, Route53)
-- Publish: [`deploy/static/deploy.sh`](deploy/static/deploy.sh) — syncs `static/` to the bucket and invalidates the CDN
+- Publish: pushing to `main` with changes under `static/` runs [`.github/workflows/publish.yml`](.github/workflows/publish.yml), which authenticates with GitHub OIDC (no stored keys) and runs [`deploy/static/deploy.sh`](deploy/static/deploy.sh) to sync the bucket and invalidate the CDN. The same script works locally with the `personal` AWS profile.
 
 **Previous (retired):** the container ran on EC2 behind nginx. That setup is kept for reference:
 
